@@ -1,7 +1,7 @@
 from flask import request, url_for, render_template
 from flask_mail import Mail
 from flask_restful import Resource, reqparse
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_refresh_token_required, get_jwt_identity, fresh_jwt_required
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_refresh_token_required, get_jwt_identity, fresh_jwt_required, jwt_required
 import datetime
 
 from project.models.user import UserModel, Email_Settings, Login_History
@@ -163,7 +163,7 @@ class UserLogin(Resource):
     username = request.json.get('username')
     password = request.json.get('password')
     service = request.json.get('service')
-    
+
     if not username or not password or not service:
       return {
         "message": "Request data is not correct"
@@ -176,7 +176,7 @@ class UserLogin(Resource):
       ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
       user_agent = request.headers.get('User-Agent')
 
-      login_history = Login_History(user.id, datetime.datetime.now(), ip, user_agent)
+      login_history = Login_History(user.id, datetime.datetime.now(), ip, user_agent) 
       login_history.save_to_db()
 
       access_token = create_access_token(identity=user.id, fresh=True)
@@ -200,6 +200,13 @@ class TokenRefresh(Resource):
     return {
       "access_token": new_token
     }, 200
+  
+class SecretResource(Resource):
+  @jwt_required
+  def get(self):
+    return {
+        'answer': 412
+    }
 
 class ConfirmationView(Resource):
   def get(self, token):
