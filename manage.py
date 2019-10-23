@@ -58,7 +58,6 @@ def fresh_token_loader_callback():
         }, 401
     )
 
-
 api.add_resource(User, "/user/<int:user_id>")
 api.add_resource(UserRegister, "/register")
 api.add_resource(UserLogin, "/login")
@@ -68,7 +67,6 @@ api.add_resource(UserTermination, "/termination/<int:id>")
 api.add_resource(PasswordReset, "/passwordreset/<int:id>")
 api.add_resource(SecretResource, '/secret')
 api.add_resource(TokenRefresh, '/token/refresh')
-
 
 if __name__ == '__main__':
     from project.database.db import db
