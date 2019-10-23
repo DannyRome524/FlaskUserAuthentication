@@ -7,8 +7,9 @@ import datetime
 from project.models.user import UserModel, Email_Settings, Login_History
 from project.functions.token import generate_confirmation_token, confirm_token
 from project.functions.email import send_email
-from project import app
-from project import mail
+from project import app, mail
+from project.auth import auth
+from project.database.db import db
 
 import hashlib
 
@@ -74,6 +75,7 @@ _user_parser.add_argument(
 )
 
 class User(Resource):
+  @auth.login_required
   def get(self, user_id):
     user = UserModel.find_user_by_id(user_id)
     if user:
@@ -157,12 +159,35 @@ class UserRegister(Resource):
       "message": "User {} created!".format(data["username"])
     }
 
+
+_user_login = reqparse.RequestParser()
+_user_login.add_argument(
+  "username",
+  type=str,
+  required=True,
+  help="This field cannot be blank"
+)
+
+_user_login.add_argument(
+  "password",
+  type=str,
+  required=True,
+  help="This field cannot be blank"
+)
+
+_user_login.add_argument(
+  "service",
+  type=str,
+  required=True,
+  help="This field cannot be blank"
+)
+
 class UserLogin(Resource):
   def post(self):
-    # data = _user_parser.parse_args()
-    username = request.json.get('username')
-    password = request.json.get('password')
-    service = request.json.get('service')
+    data = _user_login.parse_args()
+    username = data['username']
+    password = data['password']
+    service = data['service']
 
     if not username or not password or not service:
       return {
@@ -170,6 +195,7 @@ class UserLogin(Resource):
       }, 400
 
     user = UserModel.find_user_by_username(username)
+    print(user.id)
 
     if user and user.password == hashlib.sha256(password.encode("utf-8")).hexdigest() and user.service == service:
 
@@ -192,6 +218,60 @@ class UserLogin(Resource):
       "message": "Invalid credentials!"
     }, 401
 
+
+
+class UserExtension(Resource):
+  # @jwt_required
+  def put(self, id):
+    valid_until = request.json.get('valid_until')
+
+    user = UserModel.find_user_by_id(id)
+    if user:
+      user.valid_until = valid_until
+      user.save_to_db()
+      return {
+        "message": "Successfully Updated"
+      }, 200
+    return 'User not found', 404
+
+class UserTermination(Resource):
+  def put(self, id):
+    user = UserModel.find_user_by_id(id)
+    if user:
+      user.account_status = "terminated"
+      user.save_to_db()
+      return {
+        "message": "Successfully Terminated"
+      }, 200
+    return 'User not found', 404
+
+
+# class PwResetRequest(Resource):
+#   def post(self):
+#     username = request.json.get('username')
+#     email = request.json.get('email')
+#     service = request.json.get('service')
+#     print(username, email, service)
+
+#     if not username or not email or not service:
+#       return {
+#         "message": "Request data is not correct!"
+#       }, 400
+    
+#     email_confirmation_data = Email_Settings.query.filter_by(service=service).first()
+#     mail.init_app(app, email_confirmation_data)
+
+#     token = generate_confirmation_token(user.email)
+#     confirm_url = url_for('pwresetconfirmview', token=token, _external=True)
+#     html = render_template('pwresetconfirmation.html', confirm_url=confirm_url)
+#     subject = "Password Reset Request"
+#     send_email(email, subject, html)
+
+#     return {
+#       "message": "Password reset request was sent successfully."
+#     }, 200
+
+
 class TokenRefresh(Resource):
   @jwt_refresh_token_required
   def post(self):
@@ -207,6 +287,15 @@ class SecretResource(Resource):
     return {
         'answer': 412
     }
+
+# class PwResetConfirmationView(Resource):
+#   def get(self, token):
+#     email = confirm_token(token)
+#     user = UserModel.query.filter_by(email=email).first()
+#     if user:
+#       return 'success', 200
+#     return 'Invalid confirmation token.', 406
+
 
 class ConfirmationView(Resource):
   def get(self, token):

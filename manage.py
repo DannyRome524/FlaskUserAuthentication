@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 
-from project.resources.user import User, UserLogin, UserRegister, ConfirmationView, SecretResource, TokenRefresh
+from project.resources.user import User, UserLogin, UserRegister, ConfirmationView, SecretResource, TokenRefresh, UserExtension, UserTermination
 from project import app
 
 import os
@@ -63,6 +63,10 @@ api.add_resource(User, "/user/<int:user_id>")
 api.add_resource(UserRegister, "/register")
 api.add_resource(UserLogin, "/login")
 api.add_resource(ConfirmationView, "/confirmation/<token>")
+api.add_resource(UserExtension, "/extension/<int:id>")
+api.add_resource(UserTermination, "/termination/<int:id>")
+# api.add_resource(PwResetRequest, "/pwresetrequest")
+# api.add_resource(PwResetConfirmationView, "/pwresetconfirm/<token>")
 api.add_resource(SecretResource, '/secret')
 api.add_resource(TokenRefresh, '/token/refresh')
 
