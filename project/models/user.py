@@ -79,18 +79,6 @@ class Login_History(db.Model):
     db.session.add(self)
     db.session.commit()
 
-# class Api_Users(db.Model):
-#   id = db.Column(db.Integer, primary_key=True, nullable=False)
-#   username = db.Column(db.String(45), default=NULL)
-#   password = db.Column(db.String(255), default=NULL)
-#   service = db.Column(db.String(45), default=NULL)
-
-# class Html_Templates(db.Model):
-#   id = db.Column(db.Integer, primary_key=True, nullable=False)
-#   service = db.Column(db.String(45), default=NULL)
-#   type = db.Column(db.String(45), default=NULL)
-#   template = db.Column(db.String(255), default=NULL)
-
 class Email_Settings(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   service = db.Column(db.String(45), nullable=False)

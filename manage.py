@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 
-from project.resources.user import User, UserLogin, UserRegister, ConfirmationView, SecretResource, TokenRefresh, UserExtension, UserTermination
+from project.resources.user import User, UserLogin, UserRegister, ConfirmationView, SecretResource, TokenRefresh, UserExtension, UserTermination, PasswordReset
 from project import app
 
 import os
@@ -65,8 +65,7 @@ api.add_resource(UserLogin, "/login")
 api.add_resource(ConfirmationView, "/confirmation/<token>")
 api.add_resource(UserExtension, "/extension/<int:id>")
 api.add_resource(UserTermination, "/termination/<int:id>")
-# api.add_resource(PwResetRequest, "/pwresetrequest")
-# api.add_resource(PwResetConfirmationView, "/pwresetconfirm/<token>")
+api.add_resource(PasswordReset, "/passwordreset/<int:id>")
 api.add_resource(SecretResource, '/secret')
 api.add_resource(TokenRefresh, '/token/refresh')
 
@@ -76,8 +75,6 @@ if __name__ == '__main__':
 
     db.init_app(app)
 
-    # @app.before_first_request
-    # def create_tables():
     with app.app_context():
         db.create_all()
 

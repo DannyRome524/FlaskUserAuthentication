@@ -79,13 +79,10 @@ class User(Resource):
   def get(self, user_id):
     user = UserModel.find_user_by_id(user_id)
     if user:
-      return user.json()
-
-    
+      return user.json()    
     return {
       "message": "User not found!"
     }, 404
-
 
   @fresh_jwt_required
   def delete(self, user_id):
@@ -100,8 +97,6 @@ class User(Resource):
     return {
       "message": "User not found!"
     }, 404
-
-
 
 class UserRegister(Resource):
   def post(self):
@@ -158,7 +153,6 @@ class UserRegister(Resource):
     return {
       "message": "User {} created!".format(data["username"])
     }
-
 
 _user_login = reqparse.RequestParser()
 _user_login.add_argument(
@@ -218,8 +212,6 @@ class UserLogin(Resource):
       "message": "Invalid credentials!"
     }, 401
 
-
-
 class UserExtension(Resource):
   # @jwt_required
   def put(self, id):
@@ -245,32 +237,18 @@ class UserTermination(Resource):
       }, 200
     return 'User not found', 404
 
-
-# class PwResetRequest(Resource):
-#   def post(self):
-#     username = request.json.get('username')
-#     email = request.json.get('email')
-#     service = request.json.get('service')
-#     print(username, email, service)
-
-#     if not username or not email or not service:
-#       return {
-#         "message": "Request data is not correct!"
-#       }, 400
-    
-#     email_confirmation_data = Email_Settings.query.filter_by(service=service).first()
-#     mail.init_app(app, email_confirmation_data)
-
-#     token = generate_confirmation_token(user.email)
-#     confirm_url = url_for('pwresetconfirmview', token=token, _external=True)
-#     html = render_template('pwresetconfirmation.html', confirm_url=confirm_url)
-#     subject = "Password Reset Request"
-#     send_email(email, subject, html)
-
-#     return {
-#       "message": "Password reset request was sent successfully."
-#     }, 200
-
+class PasswordReset(Resource):
+  def put(self, id):
+    old_password = request.json.get('old_password')
+    new_password = request.json.get('new_password')
+    user = UserModel.find_user_by_id(id)
+    if user.password == hashlib.sha256(old_password.encode("utf-8")).hexdigest():
+      user.password = hashlib.sha256(new_password.encode("utf-8")).hexdigest()
+      user.save_to_db()
+      return {
+        "message": "Password has been changed successfully."
+      }, 200
+    return 'Incorrect password', 400
 
 class TokenRefresh(Resource):
   @jwt_refresh_token_required
@@ -287,15 +265,6 @@ class SecretResource(Resource):
     return {
         'answer': 412
     }
-
-# class PwResetConfirmationView(Resource):
-#   def get(self, token):
-#     email = confirm_token(token)
-#     user = UserModel.query.filter_by(email=email).first()
-#     if user:
-#       return 'success', 200
-#     return 'Invalid confirmation token.', 406
-
 
 class ConfirmationView(Resource):
   def get(self, token):
