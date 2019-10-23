@@ -138,7 +138,6 @@ class UserRegister(Resource):
       verified,
       payment_reference
     )
-    print(user)
     user.save_to_db()
     
     email_confirmation_data = Email_Settings.query.filter_by(service=user.service).first()

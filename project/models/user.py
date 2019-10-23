@@ -1,6 +1,5 @@
 from project.database.db import db
 
-
 class UserModel(db.Model):
   __tablename__ = "user"
   id = db.Column(db.Integer, primary_key=True)
@@ -19,7 +18,8 @@ class UserModel(db.Model):
   verified = db.Column(db.Boolean)
   payment_reference = db.Column(db.String(255), index=True)
     
-  def __init__(self, username, email, password, country, service, lang=None, mobilenumber=None, registered=None, registration_ip=None, b64_img=None, account_status=None, valid_until=None, verified=None, payment_reference=None):
+  def __init__(self, username, email, password, country, service, lang=None, mobilenumber=None, registered=None, registration_ip=None,
+               b64_img=None, account_status=None, valid_until=None, verified=None, payment_reference=None):
     self.username = username
     self.email = email
     self.password = password
@@ -64,10 +64,12 @@ class UserModel(db.Model):
 
 class Login_History(db.Model):
   id = db.Column(db.Integer, primary_key=True)
-  user_id = db.Column(db.Integer)
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
   login_date = db.Column(db.DateTime)
   ip = db.Column(db.String(45))
   useragent = db.Column(db.String(255))
+
+  user = db.relationship('UserModel', backref=db.backref('user', lazy='dynamic'), foreign_keys=[user_id])
 
   def __init__(self, user_id, login_date=None, ip=None, useragent=None):
     self.user_id=user_id
