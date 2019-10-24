@@ -541,24 +541,13 @@ class Mail(_MailMixin):
 
     def init_mail(self, config, mail_setting, debug=False, testing=False):
         return _Mail(
-            # config.get('MAIL_SERVER', '127.0.0.1'),
-            # config.get('MAIL_USERNAME'),
-            # config.get('MAIL_PASSWORD'),
-            # config.get('MAIL_PORT', 25),
-            # config.get('MAIL_USE_TLS', False),
-            # config.get('MAIL_USE_SSL', False),
-            # config.get('MAIL_DEFAULT_SENDER'),
-            # int(config.get('MAIL_DEBUG', debug)),
-            # config.get('MAIL_MAX_EMAILS'),
-            # config.get('MAIL_SUPPRESS_SEND', testing),
-            # config.get('MAIL_ASCII_ATTACHMENTS', False)
             mail_setting.smtpserver,
             mail_setting.username,
             mail_setting.password,
             mail_setting.port,
             False,
             True,
-            'twoway1115@gmail.com',
+            config.get('MAIL_DEFAULT_SENDER'),
             int(config.get('MAIL_DEBUG', debug)),
             config.get('MAIL_MAX_EMAILS'),
             config.get('MAIL_SUPPRESS_SEND', testing),
