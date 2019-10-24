@@ -188,7 +188,6 @@ class UserLogin(Resource):
       }, 400
 
     user = UserModel.find_user_by_username(username)
-    print(user.id)
 
     if user and user.password == hashlib.sha256(password.encode("utf-8")).hexdigest() and user.service == service:
 
